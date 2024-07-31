@@ -1,123 +1,95 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert'; // Ensure this import is present for jsonEncode
 
-class SignUpPage extends StatefulWidget {
+class SignupPage extends StatefulWidget {
+  const SignupPage({Key? key}) : super(key: key);
+
   @override
-  _SignUpPageState createState() => _SignUpPageState();
+  State<SignupPage> createState() => _SignupPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _SignupPageState extends State<SignupPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+
+  Future<void> signUp() async {
+    final String email = _emailController.text;
+    final String password = _passwordController.text;
+    final String name = _nameController.text;
+
+    // Add your sign up logic here
+    final response = await http.post(
+      Uri.parse('http://localhost:3030/api/auth/signup'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{  // Use jsonEncode from 'dart:convert'
+        'email': email,
+        'password': password,
+        'name': name,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Handle successful response
+      print('User signed up successfully');
+    } else {
+      // Handle error response
+      print('Sign up failed');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: Colors.grey[300],
-        padding: const EdgeInsets.all(20),
-        child: ListView(
-          children: [
-            const SizedBox(height: 60),
-            Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.lightBlue[200],
-                ),
-                width: 70,
-                height: 70,
-                padding: const EdgeInsets.all(10),
-                child: const Image(
-                  image: AssetImage("assets/logo.jpg"), // Ensure the logo path is correct
-                  width: 50,
-                  height: 50,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Sign Up',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            const Text('Create an account to continue using the app'),
-            const SizedBox(height: 10),
-            const Text(
-              'Name',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            TextFormField(
+      appBar: AppBar(
+        title: Text('Sign Up'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            TextField(
+              controller: _nameController,
               decoration: InputDecoration(
-                hintText: 'Enter Your Name',
-                hintStyle: const TextStyle(fontSize: 14),
-                filled: true,
-                fillColor: Colors.grey[200],
+                labelText: 'Name',
+                hintText: 'Enter your name',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
               ),
             ),
-            const SizedBox(height: 10),
-            const Text(
-              'Email',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            TextFormField(
+            SizedBox(height: 20),
+            TextField(
+              controller: _emailController,
               decoration: InputDecoration(
-                hintText: 'Enter Your Email',
-                hintStyle: const TextStyle(fontSize: 14),
-                filled: true,
-                fillColor: Colors.grey[200],
+                labelText: 'Email',
+                hintText: 'Enter your email',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
               ),
             ),
-            const SizedBox(height: 10),
-            const Text(
-              'Password',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            TextFormField(
+            SizedBox(height: 20),
+            TextField(
+              controller: _passwordController,
               obscureText: true,
               decoration: InputDecoration(
-                hintText: 'Enter Your Password',
-                hintStyle: const TextStyle(fontSize: 14),
-                filled: true,
-                fillColor: Colors.grey[200],
+                labelText: 'Password',
+                hintText: 'Enter your password',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
               ),
             ),
-            Container(
-              alignment: Alignment.topRight,
-              margin: const EdgeInsets.only(top: 15, bottom: 25),
-              child: GestureDetector(
-                child: const Text(
-                  'Already have an account? Login',
-                  style: TextStyle(fontSize: 14),
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, '/login');
-                },
-              ),
-            ),
+            SizedBox(height: 20),
             Center(
-              child: MaterialButton(
-                onPressed: () {
-                  // Add your sign-up functionality here
-                },
-                height: 50,
-                minWidth: 300,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  'Sign Up',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                ),
-                color: Colors.blue,
-                textColor: Colors.white,
+              child: ElevatedButton(
+                onPressed: signUp,
+                child: Text('Sign Up'),
               ),
             ),
           ],

@@ -1,20 +1,90 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert'; // Ensure this import is present for jsonEncode
 
-class Reset extends StatefulWidget {
+class ResetPwd extends StatefulWidget {
+  const ResetPwd({Key? key}) : super(key: key);
+
   @override
-  _ResetState createState() => _ResetState();
+  State<ResetPwd> createState() => _ResetPwdState();
 }
 
-class _ResetState extends State<Reset> {
+class _ResetPwdState extends State<ResetPwd> {
+  final TextEditingController _emailController = TextEditingController();
+
+  Future<void> resetPassword() async {
+    final String email = _emailController.text;
+
+    // Add your reset password logic here
+    final response = await http.post(
+      Uri.parse('http://localhost:3030/api/auth/resetpwd'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{  // Use jsonEncode from 'dart:convert'
+        'email': email,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Handle successful response
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Password Reset'),
+            content: const Text('We have sent a new password to your email.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // Handle error response
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Password Reset Failed'),
+            content: const Text('Failed to send password reset email. Please try again.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.grey[300],
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // Navigate back to the previous page
+          },
+        ),
+      ),
       body: Container(
         color: Colors.grey[300],
         padding: const EdgeInsets.all(20),
         child: ListView(
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 20),
             Center(
               child: Container(
                 decoration: BoxDecoration(
@@ -30,7 +100,7 @@ class _ResetState extends State<Reset> {
                 ),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             const Text(
               'Reset Password',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -44,6 +114,7 @@ class _ResetState extends State<Reset> {
             ),
             const SizedBox(height: 10),
             TextFormField(
+              controller: _emailController,
               decoration: InputDecoration(
                 hintText: 'Enter Your Email',
                 hintStyle: const TextStyle(fontSize: 14),
@@ -57,26 +128,7 @@ class _ResetState extends State<Reset> {
             const SizedBox(height: 30),
             Center(
               child: MaterialButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Password Reset'),
-                        content: const Text(
-                            'We have sent a new password to your email.'),
-                        actions: <Widget>[
-                          TextButton(
-                            child: const Text('OK'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
+                onPressed: resetPassword, // Call the resetPassword function
                 height: 50,
                 minWidth: 300,
                 shape: RoundedRectangleBorder(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class MissionDetails extends StatelessWidget {
+class MissionDetails extends StatefulWidget {
   final String title;
   final String description;
   final String location;
@@ -16,104 +16,160 @@ class MissionDetails extends StatelessWidget {
   });
 
   @override
+  _MissionDetailsState createState() => _MissionDetailsState();
+}
+
+class _MissionDetailsState extends State<MissionDetails> {
+  bool _hasStarted = false;
+  bool _showReportForm = false;
+  bool _missionFinished = false;
+  final TextEditingController _reportController = TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mission 0012'),
+        title: Text('Mission Details'),
         centerTitle: true,
+        backgroundColor: Colors.lightBlue,
       ),
-      body: Padding(
+      body: Container(
+        color: Colors.grey[300],
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
             Text(
-              title,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              widget.title,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.lightBlue),
             ),
             const SizedBox(height: 10),
             Text(
-              description,
+              widget.description,
               style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 20),
             Row(
               children: [
-                Icon(Icons.location_on, color: Colors.blue),
+                Icon(Icons.location_on, color: Colors.lightBlue),
                 const SizedBox(width: 10),
                 Text(
-                  location,
-                  style: TextStyle(fontSize: 16),
+                  widget.location,
+                  style: TextStyle(fontSize: 16, color: Colors.lightBlue),
                 ),
               ],
             ),
             const SizedBox(height: 10),
             Row(
               children: [
-                Icon(Icons.access_time, color: Colors.blue),
+                Icon(Icons.access_time, color: Colors.lightBlue),
                 const SizedBox(width: 10),
                 Text(
-                  time,
-                  style: TextStyle(fontSize: 16),
+                  widget.time,
+                  style: TextStyle(fontSize: 16, color: Colors.lightBlue),
                 ),
               ],
             ),
             const SizedBox(height: 10),
             Row(
               children: [
-                Icon(Icons.priority_high, color: Colors.blue),
+                Icon(Icons.priority_high, color: Colors.lightBlue),
                 const SizedBox(width: 10),
                 Text(
-                  'Priority: $priority',
-                  style: TextStyle(fontSize: 16),
+                  'Priority: ${widget.priority}',
+                  style: TextStyle(fontSize: 16, color: Colors.lightBlue),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {},
-              child: Text('Start'),
-            ),
-            ElevatedButton(
-              onPressed: () {},
-              child: Text('Mark as Complete'),
-            ),
-            ElevatedButton(
-              onPressed: () {},
-              child: Text('Cancel'),
-            ),
+            if (!_missionFinished)
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      if (_hasStarted) {
+                        _showReportForm = true;
+                      } else {
+                        _hasStarted = true;
+                      }
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _hasStarted ? Colors.green : Colors.lightBlue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    minimumSize: Size(200, 50),
+                  ),
+                  child: Text(_hasStarted ? 'Mark as Complete' : 'Start'),
+                ),
+              ),
             const SizedBox(height: 20),
-            Text(
-              'Status',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            CheckboxListTile(
-              title: Text('Check weather report'),
-              value: false,
-              onChanged: (bool? value) {},
-            ),
-            CheckboxListTile(
-              title: Text('Prepare equipment'),
-              value: false,
-              onChanged: (bool? value) {},
-            ),
-            CheckboxListTile(
-              title: Text('Brief team'),
-              value: false,
-              onChanged: (bool? value) {},
-            ),
-            CheckboxListTile(
-              title: Text('Launch boat'),
-              value: false,
-              onChanged: (bool? value) {},
-            ),
-            CheckboxListTile(
-              title: Text('Report back'),
-              value: false,
-              onChanged: (bool? value) {},
-            ),
+            if (_showReportForm) _buildReportForm(),
+            if (_missionFinished)
+              Center(
+                child: Text(
+                  'Mission Finished',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.lightBlue,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildReportForm() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Report',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.lightBlue),
+        ),
+        const SizedBox(height: 10),
+        TextFormField(
+          controller: _reportController,
+          decoration: InputDecoration(
+            labelText: 'Enter your report',
+            hintText: 'Detailed description of the task',
+            hintStyle: const TextStyle(fontSize: 14),
+            filled: true,
+            fillColor: Colors.grey[200],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+          ),
+          maxLines: 4,
+        ),
+        const SizedBox(height: 20),
+        Center(
+          child: ElevatedButton(
+            onPressed: () {
+              // Implement the submit action here
+              // For example, you can print the report to the console or send it to the backend
+              print('Report submitted: ${_reportController.text}');
+              setState(() {
+                _showReportForm = false;
+                _hasStarted = false;
+                _missionFinished = true; // Set mission as finished
+                _reportController.clear();
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.lightBlue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              minimumSize: Size(200, 50),
+            ),
+            child: Text('Submit'),
+          ),
+        ),
+      ],
     );
   }
 }
