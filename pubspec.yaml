@@ -72,6 +72,16 @@ flutter:
     - assets/google.png
     - assets/logo.jpg
     - assets/profile.png
+    - assets/ship_collision.jpg
+    - assets/grounding.jpg
+    - assets/flooding.jpg
+    - assets/fire.jpg
+    - assets/man_overboard.jpg
+    - assets/machinery_failure.jpg
+    - assets/piracy.jpg
+    - assets/medical_emergency.jpg
+    - assets/search_and_rescue.jpg
+    - assets/adverse_weather_conditions.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

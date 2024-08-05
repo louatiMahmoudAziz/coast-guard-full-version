@@ -8,7 +8,6 @@ class Login extends StatefulWidget {
   @override
   State<Login> createState() => _LoginState();
 }
-
 class _LoginState extends State<Login> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -31,13 +30,18 @@ class _LoginState extends State<Login> {
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = json.decode(response.body);
       final String token = responseData['token'];
-      // Store token and navigate to the next screen
-      Navigator.pushNamed(context, '/mission_dashboard');
+      // Store token and navigate to the next screen, passing the token as an argument
+      Navigator.pushReplacementNamed(
+          context,
+          '/mission_dashboard',
+          arguments: {'token': token}  // Passing token to MissionDashboard
+      );
     } else {
       // Handle error...
       print('Login failed');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

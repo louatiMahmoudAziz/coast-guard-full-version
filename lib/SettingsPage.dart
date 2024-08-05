@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:first_app/auth/changepwd.dart'; // Import the new ChangePasswordPage
+import 'package:first_app/auth/changepwd.dart';
+import 'mission_dashboard.dart';
+import 'profile.dart'; // Ensure only necessary imports are included
 
 class SettingsPage extends StatefulWidget {
+  final String token;  // Assuming the token needs to be passed
+
+  const SettingsPage({Key? key, required this.token}) : super(key: key); // Accept token in constructor
+
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
@@ -16,17 +22,16 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         title: const Text('Settings'),
         centerTitle: true,
-        backgroundColor: Colors.lightBlue, // Consistent AppBar color
+        backgroundColor: Colors.lightBlue,
       ),
       body: Container(
-        color: Colors.grey[300], // Consistent background color
+        color: Colors.grey[300],
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: [
             Text(
               'Language',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.lightBlue), // Consistent text style
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.lightBlue),
             ),
             DropdownButton<String>(
               value: _selectedLanguage,
@@ -45,7 +50,7 @@ class _SettingsPageState extends State<SettingsPage> {
             const SizedBox(height: 20),
             Text(
               'Theme',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.lightBlue), // Consistent text style
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.lightBlue),
             ),
             SwitchListTile(
               title: Text('Dark Mode'),
@@ -54,14 +59,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 setState(() {
                   _isDarkMode = value;
                 });
-                // Update the theme here if needed
               },
             ),
             const SizedBox(height: 20),
-            Text(
-              'Change Password',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.lightBlue), // Consistent text style
-            ),
             MaterialButton(
               onPressed: () {
                 Navigator.push(
@@ -69,38 +69,52 @@ class _SettingsPageState extends State<SettingsPage> {
                   MaterialPageRoute(builder: (context) => ChangePasswordPage()),
                 );
               },
-              height: 50,
-              minWidth: double.infinity,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
               color: Colors.lightBlue,
               textColor: Colors.white,
-              child: const Text(
-                'Change Password',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-              ),
+              child: const Text('Change Password', style: TextStyle(fontSize: 15)),
             ),
             const SizedBox(height: 20),
             MaterialButton(
               onPressed: () {
-                // Implement log out functionality or navigate to the login page
                 Navigator.pushReplacementNamed(context, '/login');
               },
-              height: 50,
-              minWidth: double.infinity,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
               color: Colors.red,
               textColor: Colors.white,
-              child: const Text(
-                'Log Out',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-              ),
+              child: const Text('Log Out', style: TextStyle(fontSize: 15)),
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 2,  // current index is 2 for SettingsPage
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => MissionDashboard(token: widget.token)));
+              break;
+            case 1:
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ProfilePage(token: widget.token)));
+              break;
+            case 2:
+            // Already on Settings
+              break;
+          }
+        },
+        selectedItemColor: Colors.lightBlue,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assessment),
+            label: 'Missions',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
       ),
     );
   }
