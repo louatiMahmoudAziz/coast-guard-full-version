@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:first_app/auth/changepwd.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'auth/changepwd.dart';
 import 'mission_dashboard.dart';
-import 'profile.dart'; // Ensure only necessary imports are included
+import 'profile.dart';
+import 'auth/login.dart'; // Ensure you have the correct import for your login page
 
 class SettingsPage extends StatefulWidget {
-  final String token;  // Assuming the token needs to be passed
+  final String token;
 
-  const SettingsPage({Key? key, required this.token}) : super(key: key); // Accept token in constructor
+  const SettingsPage({Key? key, required this.token}) : super(key: key);
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
@@ -75,8 +77,14 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             const SizedBox(height: 20),
             MaterialButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/login');
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.remove('token'); // Clear the token
+
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Login()),
+                );
               },
               color: Colors.red,
               textColor: Colors.white,
@@ -86,7 +94,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2,  // current index is 2 for SettingsPage
+        currentIndex: 2,
         onTap: (index) {
           switch (index) {
             case 0:
@@ -96,7 +104,7 @@ class _SettingsPageState extends State<SettingsPage> {
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ProfilePage(token: widget.token)));
               break;
             case 2:
-            // Already on Settings
+              // Already on Settings
               break;
           }
         },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -8,6 +9,7 @@ class Login extends StatefulWidget {
   @override
   State<Login> createState() => _LoginState();
 }
+
 class _LoginState extends State<Login> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -30,11 +32,16 @@ class _LoginState extends State<Login> {
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = json.decode(response.body);
       final String token = responseData['token'];
-      // Store token and navigate to the next screen, passing the token as an argument
+
+      // Save the token using shared_preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', token);
+
+      // Navigate to the MissionDashboard
       Navigator.pushReplacementNamed(
-          context,
-          '/mission_dashboard',
-          arguments: {'token': token}  // Passing token to MissionDashboard
+        context,
+        '/mission_dashboard',
+        arguments: {'token': token},
       );
     } else {
       // Handle error...
@@ -42,12 +49,11 @@ class _LoginState extends State<Login> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Colors.grey[300], // Consistent background color
+        color: Colors.grey[300],
         padding: const EdgeInsets.all(20),
         child: ListView(
           children: [
@@ -55,7 +61,7 @@ class _LoginState extends State<Login> {
             Center(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.lightBlue[200], // Consistent logo background color
+                  color: Colors.lightBlue[200],
                 ),
                 width: 70,
                 height: 70,
@@ -70,17 +76,17 @@ class _LoginState extends State<Login> {
             const SizedBox(height: 10),
             const Text(
               'Login',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.lightBlue), // Consistent text style
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.lightBlue),
             ),
             const SizedBox(height: 10),
             const Text(
               'Login to continue using the app',
-              style: TextStyle(fontSize: 16, color: Colors.lightBlue), // Consistent text style
+              style: TextStyle(fontSize: 16, color: Colors.lightBlue),
             ),
             const SizedBox(height: 10),
             const Text(
               'Email',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.lightBlue), // Consistent text style
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.lightBlue),
             ),
             const SizedBox(height: 10),
             TextFormField(
@@ -98,7 +104,7 @@ class _LoginState extends State<Login> {
             const SizedBox(height: 10),
             const Text(
               'Password',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.lightBlue), // Consistent text style
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.lightBlue),
             ),
             const SizedBox(height: 10),
             TextFormField(
@@ -120,7 +126,7 @@ class _LoginState extends State<Login> {
               child: GestureDetector(
                 child: const Text(
                   'Forgot Password?',
-                  style: TextStyle(fontSize: 14, color: Colors.lightBlue), // Consistent text style
+                  style: TextStyle(fontSize: 14, color: Colors.lightBlue),
                 ),
                 onTap: () {
                   Navigator.pushNamed(context, '/reset_pwd');
@@ -129,7 +135,7 @@ class _LoginState extends State<Login> {
             ),
             Center(
               child: MaterialButton(
-                onPressed: login, // Call the login function
+                onPressed: login,
                 height: 50,
                 minWidth: 300,
                 shape: RoundedRectangleBorder(
@@ -145,41 +151,10 @@ class _LoginState extends State<Login> {
             ),
             const SizedBox(height: 20),
             Center(
-              child: SizedBox(
-                width: 300, // Set the width to match the Login button
-                child: MaterialButton(
-                  onPressed: () {
-                    // Add your Google login functionality here
-                  },
-                  height: 50,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Login using Google    ',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                      ),
-                      Image(
-                        image: AssetImage("assets/google.png"),
-                        width: 30,
-                        height: 30,
-                      ),
-                    ],
-                  ),
-                  color: Colors.blue,
-                  textColor: Colors.white,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Center(
               child: GestureDetector(
                 child: const Text(
                   "Don't have an account? Register",
-                  style: TextStyle(fontSize: 14, color: Colors.lightBlue), // Consistent text style
+                  style: TextStyle(fontSize: 14, color: Colors.lightBlue),
                 ),
                 onTap: () {
                   Navigator.pushNamed(context, '/signup_page');
