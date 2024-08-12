@@ -41,118 +41,194 @@ class _ProfilePageState extends State<ProfilePage> {
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
           profileData = data[0]['supervisor'];
-          patrols = data ?? [];
+          patrols = data;
           isLoading = false;
         });
       } else {
-        print('Failed to load profile data: ${response.body}');
+        _showErrorDialog('Failed to load profile data');
         setState(() => isLoading = false);
       }
     } catch (e) {
-      print('Error fetching profile data: $e');
+      _showErrorDialog('Error fetching profile data: $e');
       setState(() => isLoading = false);
     }
   }
 
   Future<void> _pickImageFromCamera() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.camera);
-
-    if (image != null) {
-      setState(() {
-        _imageFile = File(image.path);
-      });
+    try {
+      final XFile? image = await picker.pickImage(source: ImageSource.camera);
+      if (image != null) {
+        setState(() {
+          _imageFile = File(image.path);
+        });
+      }
+    } catch (e) {
+      _showErrorDialog('Error selecting image from camera: $e');
     }
   }
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      setState(() {
-        _imageFile = File(image.path);
-      });
+    try {
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          _imageFile = File(image.path);
+        });
+      }
+    } catch (e) {
+      _showErrorDialog('Error selecting image from gallery: $e');
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue.shade50, // Soft background color
       appBar: AppBar(
-        title: Text('Profile'),
+        title: const Text('Profile'),
         centerTitle: true,
         backgroundColor: Colors.lightBlue,
+        elevation: 0, // Remove shadow under AppBar for a cleaner look
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : profileData == null
-          ? Center(child: Text('Failed to load profile data'))
-          : SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: 20),
-            Center(
-              child: CircleAvatar(
-                radius: 60,
-                backgroundImage: _imageFile != null
-                    ? FileImage(_imageFile!)
-                    : AssetImage('assets/profile.png') as ImageProvider,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                onPressed: _pickImageFromCamera,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.lightBlue),
-                child: Text('Update Profile Picture'),
-              ),
-            ),
-            Divider(),
-            Card(
-              margin: EdgeInsets.all(8),
-              elevation: 4,
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: Icon(Icons.account_circle, color: Colors.lightBlue),
-                    title: Text('Name'),
-                    subtitle: Text('${profileData!['name']}'),
+              ? const Center(child: Text('Failed to load profile data'))
+              : SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 20),
+                        Center(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 10,
+                                  offset: Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              children: [
+                                CircleAvatar(
+                                  radius: 60,
+                                  backgroundImage: _imageFile != null
+                                      ? FileImage(_imageFile!)
+                                      : const AssetImage('assets/profile.png')
+                                          as ImageProvider,
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  '${profileData!['name']}',
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                
+                                const SizedBox(height: 15),
+                                ElevatedButton(
+                                  onPressed: _pickImageFromCamera,
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 40, vertical: 12),
+                                    backgroundColor: Colors.lightBlue,
+                                  ),
+                                  child: const Text('Update Profile Picture'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Card(
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Column(
+                            children: [
+                              ListTile(
+                                leading: const Icon(Icons.email,
+                                    color: Colors.lightBlue),
+                                title: const Text('Email'),
+                                subtitle: Text('${profileData!['email']}'),
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.security,
+                                    color: Colors.lightBlue),
+                                title: const Text('Rank'),
+                                subtitle: Text('${profileData!['rank']}'),
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.group,
+                                    color: Colors.lightBlue),
+                                title: const Text('Team Members'),
+                                subtitle: Text(
+                                    patrols!.isNotEmpty &&
+                                            patrols![0]['teamMembers'] != null
+                                        ? patrols![0]['teamMembers'].join(', ')
+                                        : 'No team members'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  ListTile(
-                    leading: Icon(Icons.email, color: Colors.lightBlue),
-                    title: Text('Email'),
-                    subtitle: Text('${profileData!['email']}'),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.security, color: Colors.lightBlue),
-                    title: Text('Rank'),
-                    subtitle: Text('${profileData!['rank']}'),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.group, color: Colors.lightBlue),
-                    title: Text('Team Members'),
-                    subtitle: Text(patrols!.isNotEmpty && patrols![0]['teamMembers'] != null ? patrols![0]['teamMembers'].join(', ') : 'No team members'),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+                ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 1, // Index 1 for ProfilePage
         onTap: (int index) {
           switch (index) {
             case 0:
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => MissionDashboard(token: widget.token)));
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => MissionDashboard(token: widget.token)));
               break;
             case 1:
-            // Current page
+              // Current page
               break;
             case 2:
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SettingsPage(token: widget.token)));
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => SettingsPage(token: widget.token)));
               break;
           }
         },

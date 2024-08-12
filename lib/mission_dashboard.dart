@@ -138,9 +138,10 @@ class _MissionDashboardState extends State<MissionDashboard> {
       case 'adverse weather conditions':
         return Icon(Icons.cloud, color: Colors.grey);
       default:
-        return Icon(Icons.help_outline, color: Colors.grey); // Default icon if no match found
+        return Icon(Icons.help_outline, color: Colors.grey);
     }
   }
+
   Map<String, String> emergencyTypeToImage = {
     'ship collision': 'ship_collision.jpg',
     'grounding': 'grounding.jpg',
@@ -154,7 +155,6 @@ class _MissionDashboardState extends State<MissionDashboard> {
     'adverse weather conditions': 'adverse_weather_conditions.jpg',
   };
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -166,7 +166,7 @@ class _MissionDashboardState extends State<MissionDashboard> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16.0),
             child: TextField(
               onChanged: (value) {
                 setState(() {
@@ -178,64 +178,80 @@ class _MissionDashboardState extends State<MissionDashboard> {
                 labelText: 'Search Missions',
                 suffixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
               ),
             ),
           ),
-          DropdownButton<String>(
-            value: selectedUrgency,
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedUrgency = newValue!;
-                filterMissions();
-              });
-            },
-            items: urgencyLevels.map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: DropdownButton<String>(
+              value: selectedUrgency,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedUrgency = newValue!;
+                  filterMissions();
+                });
+              },
+              items: urgencyLevels.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              isExpanded: true,
+            ),
           ),
           Expanded(
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : filteredMissions.isEmpty
-                ? const Center(child: Text('No missions found'))
-                : ListView.builder(
-              itemCount: filteredMissions.length,
-              itemBuilder: (context, index) {
-                final mission = filteredMissions[index];
-                return Card(
-                  elevation: 2,
-                  child: ListTile(
-                    leading: getMissionIcon(mission['type']),
-                    title: Text(mission['title']),
-                    subtitle: Text(mission['description']),
-                    trailing: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MissionDetails(
-                              title: mission['title'],
-                              description: mission['detailedDescription'],
-                              location: mission['location'],
-                              time: mission['time'],
-                              priority: mission['priority'],
-                              imagePath: emergencyTypeToImage[mission['type']] ?? 'flooding.jpg',
-                              patrolId: mission['patrolId'],
+                    ? const Center(child: Text('No missions found'))
+                    : ListView.builder(
+                        itemCount: filteredMissions.length,
+                        itemBuilder: (context, index) {
+                          final mission = filteredMissions[index];
+                          return Card(
+                            elevation: 4,
+                            margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16.0),
                             ),
-                          ),
-                        );
-                      },
-                      child: const Text('Details'),
-                    ),
-                  ),
-                );
-              },
-            ),
+                            color: Colors.lightBlue[50],
+                            child: ListTile(
+                              leading: getMissionIcon(mission['type']),
+                              title: Text(mission['title'], style: TextStyle(fontWeight: FontWeight.bold)),
+                              subtitle: Text(mission['description']),
+                              trailing: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.lightBlue,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MissionDetails(
+                                        title: mission['title'],
+                                        description: mission['detailedDescription'],
+                                        location: mission['location'],
+                                        time: mission['time'],
+                                        priority: mission['priority'],
+                                        imagePath: emergencyTypeToImage[mission['type']] ?? 'flooding.jpg',
+                                        patrolId: mission['patrolId'],
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: const Text('Details'
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
           ),
         ],
       ),
@@ -257,9 +273,9 @@ class _MissionDashboardState extends State<MissionDashboard> {
             break;
         }
       },
-      backgroundColor: Colors.white,
-      selectedItemColor: Colors.lightBlue,
-      unselectedItemColor: Colors.grey[700],
+      backgroundColor: Colors.lightBlue,
+      selectedItemColor: Colors.white,
+      unselectedItemColor: Colors.grey[400],
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.assessment),

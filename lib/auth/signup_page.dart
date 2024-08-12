@@ -9,23 +9,35 @@ class SignupPage extends StatefulWidget {
   State<SignupPage> createState() => _SignupPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..forward();
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+  }
 
   Future<void> signUp() async {
     final String email = _emailController.text;
     final String password = _passwordController.text;
     final String name = _nameController.text;
 
-    // Add your sign up logic here
+    // Add your sign-up logic here
     final response = await http.post(
       Uri.parse('http://localhost:3030/api/auth/signup'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String>{  // Use jsonEncode from 'dart:convert'
+      body: jsonEncode(<String, String>{
         'email': email,
         'password': password,
         'name': name,
@@ -44,55 +56,120 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Sign Up'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: 'Name',
-                hintText: 'Enter your name',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF00c6ff), Color(0xFF0072ff)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: FadeTransition(
+          opacity: _animation,
+          child: ListView(
+            children: [
+              const SizedBox(height: 60),
+              Center(
+                child: Text(
+                  'Create an Account',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white.withOpacity(0.9),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                hintText: 'Enter your email',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+              const SizedBox(height: 10),
+              Center(
+                child: Text(
+                  'Sign up to get started!',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white.withOpacity(0.8),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                hintText: 'Enter your password',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+              const SizedBox(height: 40),
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
+                  hintText: 'Enter your name',
+                  hintStyle: const TextStyle(fontSize: 14),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.8),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(50),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed: signUp,
-                child: Text('Sign Up'),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
+                  hintText: 'Enter your email',
+                  hintStyle: const TextStyle(fontSize: 14),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.8),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(50),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
+                  hintText: 'Enter your password',
+                  hintStyle: const TextStyle(fontSize: 14),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.8),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(50),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+              Center(
+                child: MaterialButton(
+                  onPressed: signUp,
+                  height: 50,
+                  minWidth: 300,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'Sign Up',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  color: Colors.blue[700],
+                  textColor: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: GestureDetector(
+                  child: const Text(
+                    "Already have an account? Login",
+                    style: TextStyle(fontSize: 14, color: Colors.white),
+                  ),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/login');
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -10,9 +10,21 @@ class Login extends StatefulWidget {
   State<Login> createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> {
+class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..forward();
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+  }
 
   Future<void> login() async {
     final String email = _emailController.text;
@@ -53,115 +65,128 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Colors.grey[300],
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF00c6ff), Color(0xFF0072ff)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
         padding: const EdgeInsets.all(20),
-        child: ListView(
-          children: [
-            const SizedBox(height: 60),
-            Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.lightBlue[200],
+        child: FadeTransition(
+          opacity: _animation,
+          child: ListView(
+            children: [
+              const SizedBox(height: 60),
+              Center(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  width: 70,
+                  height: 70,
+                  padding: const EdgeInsets.all(10),
+                  child: const Image(
+                    image: AssetImage("assets/logo.jpg"),
+                    width: 50,
+                    height: 50,
+                  ),
                 ),
-                width: 70,
-                height: 70,
-                padding: const EdgeInsets.all(10),
-                child: const Image(
-                  image: AssetImage("assets/logo.jpg"),
-                  width: 50,
+              ),
+              const SizedBox(height: 30),
+              Center(
+                child: Text(
+                  'Welcome Back!',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white.withOpacity(0.9),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Center(
+                child: Text(
+                  'Please login to your account',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  hintText: 'Email',
+                  hintStyle: const TextStyle(fontSize: 14),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.8),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(50),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: 'Password',
+                  hintStyle: const TextStyle(fontSize: 14),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.8),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(50),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              Container(
+                alignment: Alignment.topRight,
+                margin: const EdgeInsets.only(top: 15, bottom: 25),
+                child: GestureDetector(
+                  child: const Text(
+                    'Forgot Password?',
+                    style: TextStyle(fontSize: 14, color: Colors.white),
+                  ),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/reset_pwd');
+                  },
+                ),
+              ),
+              Center(
+                child: MaterialButton(
+                  onPressed: login,
                   height: 50,
+                  minWidth: 300,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  color: Colors.blue[700],
+                  textColor: Colors.white,
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Login',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.lightBlue),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Login to continue using the app',
-              style: TextStyle(fontSize: 16, color: Colors.lightBlue),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Email',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.lightBlue),
-            ),
-            const SizedBox(height: 10),
-            TextFormField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                hintText: 'Enter Your Email',
-                hintStyle: const TextStyle(fontSize: 14),
-                filled: true,
-                fillColor: Colors.grey[200],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(50),
+              const SizedBox(height: 20),
+              Center(
+                child: GestureDetector(
+                  child: const Text(
+                    "Don't have an account? Register",
+                    style: TextStyle(fontSize: 14, color: Colors.white),
+                  ),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/signup_page');
+                  },
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Password',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.lightBlue),
-            ),
-            const SizedBox(height: 10),
-            TextFormField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                hintText: 'Enter Your Password',
-                hintStyle: const TextStyle(fontSize: 14),
-                filled: true,
-                fillColor: Colors.grey[200],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(50),
-                ),
-              ),
-            ),
-            Container(
-              alignment: Alignment.topRight,
-              margin: const EdgeInsets.only(top: 15, bottom: 25),
-              child: GestureDetector(
-                child: const Text(
-                  'Forgot Password?',
-                  style: TextStyle(fontSize: 14, color: Colors.lightBlue),
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, '/reset_pwd');
-                },
-              ),
-            ),
-            Center(
-              child: MaterialButton(
-                onPressed: login,
-                height: 50,
-                minWidth: 300,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  'Login',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                ),
-                color: Colors.blue,
-                textColor: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: GestureDetector(
-                child: const Text(
-                  "Don't have an account? Register",
-                  style: TextStyle(fontSize: 14, color: Colors.lightBlue),
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, '/signup_page');
-                },
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
